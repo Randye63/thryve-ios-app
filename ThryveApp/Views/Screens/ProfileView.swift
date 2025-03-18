@@ -1,7 +1,9 @@
 import SwiftUI
+import FirebaseCore
 import FirebaseAuth
 
 struct ProfileView: View {
+    @StateObject private var authManager = AuthManager()
     @State private var userEmail: String = Auth.auth().currentUser?.email ?? "Not logged in"
     @State private var showingLogoutAlert = false
     @State private var showingDeleteAccountAlert = false
@@ -9,136 +11,91 @@ struct ProfileView: View {
     @State private var showingEmailSettings = false
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color(hex: "1C2526")
-                    .edgesIgnoringSafeArea(.all)
+        VStack {
+            // Profile header
+            Text("Profile")
+                .font(.largeTitle)
+                .foregroundColor(.white)
+            
+            // User info
+            Text(userEmail)
+                .foregroundColor(.white)
+                .padding()
+            
+            // Settings buttons
+            VStack(spacing: 16) {
+                Button(action: { showingNotificationSettings = true }) {
+                    Text("Notification Settings")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                }
                 
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // User Info Section
-                        VStack(spacing: 8) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.white)
-                            
-                            Text(userEmail)
-                                .font(.system(size: 17))
-                                .foregroundColor(.white.opacity(0.8))
-                        }
+                Button(action: { showingEmailSettings = true }) {
+                    Text("Email Settings")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.white.opacity(0.1))
                         .cornerRadius(12)
-                        
-                        // Settings Section
-                        VStack(spacing: 12) {
-                            SettingsButton(
-                                title: "Notifications",
-                                icon: "bell.fill",
-                                action: { showingNotificationSettings = true }
-                            )
-                            
-                            SettingsButton(
-                                title: "Email Integration",
-                                icon: "envelope.fill",
-                                action: { showingEmailSettings = true }
-                            )
-                            
-                            SettingsButton(
-                                title: "Focus Preferences",
-                                icon: "brain.head.profile",
-                                action: { /* Navigate to focus preferences */ }
-                            )
-                        }
+                }
+                
+                Button(action: { showingLogoutAlert = true }) {
+                    Text("Logout")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.red.opacity(0.3))
                         .cornerRadius(12)
-                        
-                        // Data Section
-                        VStack(spacing: 12) {
-                            SettingsButton(
-                                title: "Export Data",
-                                icon: "square.and.arrow.up",
-                                action: exportData
-                            )
-                            
-                            SettingsButton(
-                                title: "Clear All Data",
-                                icon: "trash",
-                                action: { /* Show clear data alert */ }
-                            )
-                        }
+                }
+                
+                Button(action: { showingDeleteAccountAlert = true }) {
+                    Text("Delete Account")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.red.opacity(0.3))
                         .cornerRadius(12)
-                        
-                        // Account Section
-                        VStack(spacing: 12) {
-                            SettingsButton(
-                                title: "Delete Account",
-                                icon: "person.crop.circle.badge.minus",
-                                action: { showingDeleteAccountAlert = true }
-                            )
-                            
-                            Button(action: { showingLogoutAlert = true }) {
-                                Text("Sign Out")
-                                    .font(.system(size: 17, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .frame(height: 48)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color(hex: "00DDEB"),
-                                                Color(hex: "00A86B")
-                                            ]),
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .cornerRadius(16)
-                            }
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .padding()
                 }
             }
-            .navigationTitle("Profile")
-            .alert("Log Out", isPresented: $showingLogoutAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Log Out", role: .destructive) {
-                    do {
-                        try Auth.auth().signOut()
-                        // Navigate back to login screen
-                    } catch {
-                        print("Sign out failed: \(error)")
-                    }
-                }
-            } message: {
-                Text("Are you sure you want to log out?")
+            .padding()
+            
+            Spacer()
+        }
+        .background(Color(hex: "1C2526"))
+        .alert("Logout", isPresented: $showingLogoutAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Logout", role: .destructive) {
+                logout()
             }
-            .alert("Delete Account", isPresented: $showingDeleteAccountAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    // Implement account deletion
-                }
-            } message: {
-                Text("This action cannot be undone. All your data will be permanently deleted.")
-            }
-            .sheet(isPresented: $showingNotificationSettings) {
-                NotificationSettingsView()
-            }
-            .sheet(isPresented: $showingEmailSettings) {
-                EmailSettingsView()
+        }
+        .alert("Delete Account", isPresented: $showingDeleteAccountAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteAccount()
             }
         }
     }
     
-    private func exportData() {
-        // Implement data export functionality
+    private func logout() {
+        do {
+            try Auth.auth().signOut()
+            // Handle post-logout navigation
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
+    
+    private func deleteAccount() {
+        Auth.auth().currentUser?.delete { error in
+            if let error = error {
+                print("Error deleting account: \(error.localizedDescription)")
+            } else {
+                // Handle post-deletion navigation
+            }
+        }
     }
 }
 

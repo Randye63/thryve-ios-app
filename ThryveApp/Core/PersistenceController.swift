@@ -9,7 +9,7 @@ struct PersistenceController {
         
         // Create sample data
         for _ in 0..<10 {
-            let newTask = Task(context: viewContext)
+            let newTask = Task(from: viewContext as! Decoder)
             newTask.id = UUID()
             newTask.title = "Sample Habit"
             newTask.dueDate = Date()

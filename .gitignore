@@ -48,4 +48,7 @@ GoogleService-Info.plist
 *.hmap
 *.ipa
 *.dSYM.zip
-*.dSYM 
+*.dSYM
+
+# API Keys and Secrets
+ThryveApp/Config/Secrets.xcconfig 

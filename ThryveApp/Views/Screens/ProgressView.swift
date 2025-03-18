@@ -1,5 +1,8 @@
 import SwiftUI
 import Charts
+import SwiftUI
+import SwiftUI
+import Charts
 
 struct ProgressView: View {
     @EnvironmentObject var appViewModel: AppViewModel
@@ -7,6 +10,17 @@ struct ProgressView: View {
     
     enum TimeRange: String, CaseIterable {
         case week = "Week"
+        case month = "Month"
+        case year = "Year"
+    }
+        case week = "Week"
+        case month = "Month"
+        case year = "Year"
+    }
+        case week = "Week"
+        case month = "Month"
+        case year = "Year"
+    }
         case month = "Month"
         case year = "Year"
     }
@@ -42,7 +56,7 @@ struct ProgressView: View {
                         .frame(height: 200)
                         .padding()
                     }
-                    .background(Color(.systemBackground))
+                    .background(Color(UIColor.systemBackground))
                     .cornerRadius(12)
                     .shadow(radius: 2)
                     
@@ -102,7 +116,7 @@ struct ProgressView: View {
                 .padding()
             }
             .navigationTitle("Progress")
-            .background(Color(.systemGroupedBackground))
+            .background(Color(UIColor.systemGroupedBackground))
         }
     }
     
