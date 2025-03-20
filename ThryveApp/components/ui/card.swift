@@ -10,7 +10,7 @@ struct ThryveCard<Content: View>: View {
     var body: some View {
         content
             .padding()
-            .background(Color.white.opacity(0.1))
+            .background(Color("Secondary").opacity(0.1))
             .cornerRadius(12)
             .padding(.horizontal)
     }

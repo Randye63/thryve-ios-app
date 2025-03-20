@@ -26,8 +26,8 @@ struct ThryveButton: View {
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(hex: "00DDEB"),
-                        Color(hex: "00A86B")
+                        Color("Primary"),
+                        Color("Secondary")
                     ]),
                     startPoint: .leading,
                     endPoint: .trailing
@@ -64,7 +64,7 @@ struct ButtonPreview: View {
 struct ThryveButton_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color(hex: "1C2526").ignoresSafeArea()
+            Color("Primary").ignoresSafeArea()
             ButtonPreview()
         }
     }
